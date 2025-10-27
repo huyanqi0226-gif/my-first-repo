@@ -1,0 +1,381 @@
+warning: in the working copy of 'app.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/test_app.py', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/app.py b/app.py[m
+[1mindex 51d081d..a4ad8af 100644[m
+[1m--- a/app.py[m
+[1m+++ b/app.py[m
+[36m@@ -3,7 +3,14 @@[m [mimport pandas as pd[m
+ from sklearn.preprocessing import StandardScaler[m
+ from sklearn.model_selection import train_test_split[m
+ from sklearn.svm import SVC[m
+[31m-from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score, confusion_matrix, classification_report[m
+[32m+[m[32mfrom sklearn.metrics import ([m
+[32m+[m[32m    accuracy_score,[m
+[32m+[m[32m    recall_score,[m
+[32m+[m[32m    precision_score,[m
+[32m+[m[32m    f1_score,[m
+[32m+[m[32m    confusion_matrix,[m
+[32m+[m[32m    classification_report,[m
+[32m+[m[32m)[m
+ import numpy as np[m
+ import warnings[m
+ import mlflow[m
+[36m@@ -14,19 +21,25 @@[m [mfrom dotenv import load_dotenv[m
+ # 加载环境变量[m
+ load_dotenv()[m
+ [m
+[31m-warnings.filterwarnings('ignore')[m
+[32m+[m[32mwarnings.filterwarnings("ignore")[m
+[32m+[m
+ [m
+ def setup_mlflow():[m
+     """设置MLflow跟踪"""[m
+[31m-    mlflow_tracking_uri = os.getenv('MLFLOW_TRACKING_URI', 'http://localhost:5000')[m
+[31m-    mlflow_username = os.getenv('MLFLOW_TRACKING_USERNAME')[m
+[31m-    mlflow_password = os.getenv('MLFLOW_TRACKING_PASSWORD')[m
+[31m-    [m
+[32m+[m[32m    mlflow_tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")[m
+[32m+[m[32m    mlflow_username = os.getenv("MLFLOW_TRACKING_USERNAME")[m
+[32m+[m[32m    mlflow_password = os.getenv("MLFLOW_TRACKING_PASSWORD")[m
+[32m+[m
+     if mlflow_tracking_uri and mlflow_username and mlflow_password:[m
+         try:[m
+             from dagshub import DAGsHub[m
+[32m+[m
+             # 连接到DAGsHub[m
+[31m-            repo_owner = mlflow_username.split('/')[-1] if '/' in mlflow_username else mlflow_username[m
+[32m+[m[32m            repo_owner = ([m
+[32m+[m[32m                mlflow_username.split("/")[-1][m
+[32m+[m[32m                if "/" in mlflow_username[m
+[32m+[m[32m                else mlflow_username[m
+[32m+[m[32m            )[m
+             DAGsHub([m
+                 repo_owner=repo_owner,[m
+                 repo_name="titanic-survival-prediction",[m
+[36m@@ -40,18 +53,19 @@[m [mdef setup_mlflow():[m
+     else:[m
+         print("使用本地 MLflow 跟踪")[m
+         mlflow.set_tracking_uri("./mlruns")[m
+[31m-    [m
+[32m+[m
+     mlflow.set_experiment("Titanic Survival Prediction")[m
+     return mlflow[m
+ [m
+[32m+[m
+ def main():[m
+     # 设置MLflow[m
+     mlflow = setup_mlflow()[m
+[31m-    [m
+[32m+[m
+     # 开始MLflow运行[m
+     with mlflow.start_run():[m
+         print("开始泰坦尼克号生存预测...")[m
+[31m-        [m
+[32m+[m
+         # 记录参数[m
+         mlflow.log_param("test_size", 0.3)[m
+         mlflow.log_param("random_state", 42)[m
+[36m@@ -59,31 +73,33 @@[m [mdef main():[m
+         mlflow.log_param("kernel", "rbf")[m
+         mlflow.log_param("C", 1)[m
+         mlflow.log_param("gamma", 0.1)[m
+[31m-        [m
+[32m+[m
+         # 读取数据集[m
+[31m-        df = pd.read_csv('data/train_and_test2.csv', encoding='utf-8')[m
+[32m+[m[32m        df = pd.read_csv("data/train_and_test2.csv", encoding="utf-8")[m
+         print(f"数据集形状: {df.shape}")[m
+[31m-        [m
+[32m+[m
+         # 记录数据集信息[m
+         mlflow.log_param("dataset_rows", df.shape[0])[m
+         mlflow.log_param("dataset_columns", df.shape[1])[m
+ [m
+         # 删除zero列[m
+[31m-        zero_columns = [col for col in df.columns if col.startswith('zero')][m
+[32m+[m[32m        zero_columns = [col for col in df.columns if col.startswith("zero")][m
+         df.drop(zero_columns, inplace=True, axis=1)[m
+         print(f"删除zero列后形状: {df.shape}")[m
+ [m
+         # 对缺失值进行向前填充[m
+[31m-        if 'Embarked' in df.columns:[m
+[31m-            df['Embarked'].fillna(method='ffill', inplace=True)[m
+[32m+[m[32m        if "Embarked" in df.columns:[m
+[32m+[m[32m            df["Embarked"].fillna(method="ffill", inplace=True)[m
+ [m
+         # 建立标签[m
+[31m-        X = df.drop(['Passengerid', '2urvived'], axis=1)[m
+[31m-        y = df['2urvived'][m
+[32m+[m[32m        X = df.drop(["Passengerid", "2urvived"], axis=1)[m
+[32m+[m[32m        y = df["2urvived"][m
+         print(f"特征数量: {X.shape[1]}")[m
+ [m
+         # 划分数据集[m
+[31m-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)[m
+[32m+[m[32m        X_train, X_test, y_train, y_test = train_test_split([m
+[32m+[m[32m            X, y, test_size=0.3, random_state=42[m
+[32m+[m[32m        )[m
+         print(f"训练集大小: {X_train.shape}, 测试集大小: {X_test.shape}")[m
+ [m
+         # 数据标准化[m
+[36m@@ -92,7 +108,7 @@[m [mdef main():[m
+         X_test = std.transform(X_test)[m
+ [m
+         # 实例化SVM[m
+[31m-        svm = SVC(C=1, gamma=0.1, kernel='rbf', random_state=42)[m
+[32m+[m[32m        svm = SVC(C=1, gamma=0.1, kernel="rbf", random_state=42)[m
+         svm.fit(X_train, y_train)[m
+ [m
+         y_pred = svm.predict(X_test)[m
+[36m@@ -103,7 +119,9 @@[m [mdef main():[m
+         print(confusion)[m
+ [m
+         # 归一化混淆矩阵[m
+[31m-        confusion_normalized = confusion.astype('float') / confusion.sum(axis=1)[:, np.newaxis][m
+[32m+[m[32m        confusion_normalized = ([m
+[32m+[m[32m            confusion.astype("float") / confusion.sum(axis=1)[:, np.newaxis][m
+[32m+[m[32m        )[m
+         print("\n归一化混淆矩阵：")[m
+         print(confusion_normalized)[m
+ [m
+[36m@@ -112,44 +130,47 @@[m [mdef main():[m
+         recall = recall_score(y_test, y_pred)[m
+         precision = precision_score(y_test, y_pred)[m
+         f1 = f1_score(y_test, y_pred)[m
+[31m-        [m
+[31m-        print(f'\naccuracy={accuracy:.4f}, recall={recall:.4f}, precision={precision:.4f}, f1={f1:.4f}')[m
+[32m+[m
+[32m+[m[32m        print([m
+[32m+[m[32m            f"\naccuracy={accuracy:.4f}, recall={recall:.4f}, precision={precision:.4f}, f1={f1:.4f}"[m
+[32m+[m[32m        )[m
+ [m
+         # 记录指标到MLflow[m
+         mlflow.log_metric("accuracy", accuracy)[m
+         mlflow.log_metric("recall", recall)[m
+         mlflow.log_metric("precision", precision)[m
+         mlflow.log_metric("f1_score", f1)[m
+[31m-        [m
+[32m+[m
+         # 记录模型[m
+         mlflow.sklearn.log_model(svm, "svm_model")[m
+[31m-        [m
+[32m+[m
+         # 记录混淆矩阵图像[m
+         import matplotlib.pyplot as plt[m
+         import seaborn as sns[m
+[31m-        [m
+[32m+[m
+         plt.figure(figsize=(10, 8))[m
+[31m-        sns.heatmap(confusion, annot=True, fmt='d', cmap='Blues')[m
+[31m-        plt.title('Confusion Matrix')[m
+[31m-        plt.ylabel('True Label')[m
+[31m-        plt.xlabel('Predicted Label')[m
+[31m-        [m
+[32m+[m[32m        sns.heatmap(confusion, annot=True, fmt="d", cmap="Blues")[m
+[32m+[m[32m        plt.title("Confusion Matrix")[m
+[32m+[m[32m        plt.ylabel("True Label")[m
+[32m+[m[32m        plt.xlabel("Predicted Label")[m
+[32m+[m
+         # 保存图像到临时文件并记录到MLflow[m
+[31m-        plt.savefig('confusion_matrix.png')[m
+[31m-        mlflow.log_artifact('confusion_matrix.png')[m
+[32m+[m[32m        plt.savefig("confusion_matrix.png")[m
+[32m+[m[32m        mlflow.log_artifact("confusion_matrix.png")[m
+         plt.close()[m
+ [m
+         # 打印详细的分类报告[m
+         print("\n详细分类报告：")[m
+[31m-        report = classification_report(y_test, y_pred, target_names=['负类', '正类'])[m
+[32m+[m[32m        report = classification_report(y_test, y_pred, target_names=["负类", "正类"])[m
+         print(report)[m
+[31m-        [m
+[32m+[m
+         # 记录分类报告[m
+         with open("classification_report.txt", "w") as f:[m
+             f.write(report)[m
+         mlflow.log_artifact("classification_report.txt")[m
+[31m-        [m
+[32m+[m
+         print("MLflow运行完成！运行ID:", mlflow.active_run().info.run_id)[m
+ [m
+[31m-if __name__ == '__main__':[m
+[32m+[m
+[32m+[m[32mif __name__ == "__main__":[m
+     main()[m
+[1mdiff --git a/tests/test_app.py b/tests/test_app.py[m
+[1mindex c370ef3..de65baf 100644[m
+[1m--- a/tests/test_app.py[m
+[1m+++ b/tests/test_app.py[m
+[36m@@ -10,6 +10,7 @@[m [msys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))[m
+ [m
+ try:[m
+     from app import main, setup_mlflow[m
+[32m+[m
+     HAS_DEPENDENCIES = True[m
+ except ImportError as e:[m
+     print(f"导入依赖失败: {e}")[m
+[36m@@ -21,19 +22,19 @@[m [mclass TestTitanicSurvivalPrediction:[m
+ [m
+     def test_data_file_exists(self):[m
+         """测试数据文件是否存在"""[m
+[31m-        assert os.path.exists('data/train_and_test2.csv'), "数据文件不存在"[m
+[32m+[m[32m        assert os.path.exists("data/train_and_test2.csv"), "数据文件不存在"[m
+ [m
+     def test_data_loading(self):[m
+         """测试数据加载功能"""[m
+         if not HAS_DEPENDENCIES:[m
+             pytest.skip("依赖未安装")[m
+[31m-        [m
+[32m+[m
+         try:[m
+[31m-            df = pd.read_csv('data/train_and_test2.csv', encoding='utf-8')[m
+[32m+[m[32m            df = pd.read_csv("data/train_and_test2.csv", encoding="utf-8")[m
+             assert isinstance(df, pd.DataFrame)[m
+             assert not df.empty, "数据框为空"[m
+[31m-            assert '2urvived' in df.columns, "缺少目标列"[m
+[31m-            assert 'Passengerid' in df.columns, "缺少ID列"[m
+[32m+[m[32m            assert "2urvived" in df.columns, "缺少目标列"[m
+[32m+[m[32m            assert "Passengerid" in df.columns, "缺少ID列"[m
+         except Exception as e:[m
+             pytest.fail(f"数据加载失败: {e}")[m
+ [m
+[36m@@ -41,37 +42,40 @@[m [mclass TestTitanicSurvivalPrediction:[m
+         """测试数据预处理"""[m
+         if not HAS_DEPENDENCIES:[m
+             pytest.skip("依赖未安装")[m
+[31m-        [m
+[32m+[m
+         try:[m
+[31m-            df = pd.read_csv('data/train_and_test2.csv', encoding='utf-8')[m
+[31m-            [m
+[32m+[m[32m            df = pd.read_csv("data/train_and_test2.csv", encoding="utf-8")[m
+[32m+[m
+             # 测试删除zero列[m
+             original_columns = len(df.columns)[m
+[31m-            zero_columns = [col for col in df.columns if col.startswith('zero')][m
+[32m+[m[32m            zero_columns = [col for col in df.columns if col.startswith("zero")][m
+             df.drop(zero_columns, inplace=True, axis=1)[m
+             assert len(df.columns) == original_columns - len(zero_columns)[m
+[31m-            [m
+[32m+[m
+             # 测试特征和目标分离[m
+[31m-            X = df.drop(['Passengerid', '2urvived'], axis=1)[m
+[31m-            y = df['2urvived'][m
+[31m-            [m
+[32m+[m[32m            X = df.drop(["Passengerid", "2urvived"], axis=1)[m
+[32m+[m[32m            y = df["2urvived"][m
+[32m+[m
+             assert X.shape[1] > 0, "特征数量为0"[m
+             assert len(y) == len(df), "目标变量长度不匹配"[m
+[31m-            [m
+[32m+[m
+         except Exception as e:[m
+             pytest.fail(f"数据预处理失败: {e}")[m
+ [m
+[31m-    @patch('app.mlflow')[m
+[32m+[m[32m    @patch("app.mlflow")[m
+     def test_mlflow_setup(self, mock_mlflow):[m
+         """测试MLflow设置"""[m
+         if not HAS_DEPENDENCIES:[m
+             pytest.skip("依赖未安装")[m
+[31m-        [m
+[31m-        with patch.dict(os.environ, {[m
+[31m-            'MLFLOW_TRACKING_URI': 'http://test.com',[m
+[31m-            'MLFLOW_TRACKING_USERNAME': 'test',[m
+[31m-            'MLFLOW_TRACKING_PASSWORD': 'test'[m
+[31m-        }):[m
+[32m+[m
+[32m+[m[32m        with patch.dict([m
+[32m+[m[32m            os.environ,[m
+[32m+[m[32m            {[m
+[32m+[m[32m                "MLFLOW_TRACKING_URI": "http://test.com",[m
+[32m+[m[32m                "MLFLOW_TRACKING_USERNAME": "test",[m
+[32m+[m[32m                "MLFLOW_TRACKING_PASSWORD": "test",[m
+[32m+[m[32m            },[m
+[32m+[m[32m        ):[m
+             try:[m
+                 setup_mlflow()[m
+                 # 验证mlflow被调用[m
+[36m@@ -87,34 +91,39 @@[m [mclass TestTitanicSurvivalPrediction:[m
+         """冒烟测试：确保训练流程能正常运行"""[m
+         if not HAS_DEPENDENCIES:[m
+             pytest.skip("依赖未安装")[m
+[31m-        [m
+[32m+[m
+         # 使用mock来避免实际调用MLflow[m
+[31m-        with patch('app.mlflow.start_run') as mock_start, \[m
+[31m-             patch('app.mlflow.log_param') as mock_log_param, \[m
+[31m-             patch('app.mlflow.log_metric') as mock_log_metric, \[m
+[31m-             patch('app.mlflow.sklearn.log_model') as mock_log_model:[m
+[31m-            [m
+[32m+[m[32m        with patch("app.mlflow.start_run") as mock_start, patch([m
+[32m+[m[32m            "app.mlflow.log_param"[m
+[32m+[m[32m        ) as mock_log_param, patch("app.mlflow.log_metric") as mock_log_metric, patch([m
+[32m+[m[32m            "app.mlflow.sklearn.log_model"[m
+[32m+[m[32m        ) as mock_log_model:[m
+[32m+[m
+             # 创建一个mock的run对象[m
+             mock_run = MagicMock()[m
+             mock_start.return_value.__enter__ = MagicMock(return_value=mock_run)[m
+             mock_start.return_value.__exit__ = MagicMock(return_value=None)[m
+[31m-            [m
+[32m+[m
+             try:[m
+                 # 运行主函数[m
+                 main()[m
+[31m-                [m
+[32m+[m
+                 # 验证MLflow被调用[m
+                 assert mock_log_param.called, "MLflow参数记录未被调用"[m
+                 assert mock_log_metric.called, "MLflow指标记录未被调用"[m
+[31m-                [m
+[32m+[m
+             except Exception as e:[m
+                 pytest.fail(f"模型训练冒烟测试失败: {e}")[m
+ [m
+     def test_environment_variables(self):[m
+         """测试环境变量"""[m
+         # 测试必要的环境变量[m
+[31m-        required_vars = ['MLFLOW_TRACKING_URI', 'MLFLOW_TRACKING_USERNAME', 'MLFLOW_TRACKING_PASSWORD'][m
+[31m-        [m
+[32m+[m[32m        required_vars = [[m
+[32m+[m[32m            "MLFLOW_TRACKING_URI",[m
+[32m+[m[32m            "MLFLOW_TRACKING_USERNAME",[m
+[32m+[m[32m            "MLFLOW_TRACKING_PASSWORD",[m
+[32m+[m[32m        ][m
+[32m+[m
+         for var in required_vars:[m
+             value = os.getenv(var)[m
+             if value is None:[m
+[36m@@ -127,6 +136,7 @@[m [mclass TestTitanicSurvivalPrediction:[m
+             import sklearn[m
+             import mlflow[m
+             import dvc[m
+[32m+[m
+             assert True[m
+         except ImportError as e:[m
+             pytest.fail(f"必要的导入失败: {e}")[m
+[36m@@ -134,18 +144,18 @@[m [mclass TestTitanicSurvivalPrediction:[m
+ [m
+ def test_dvc_config():[m
+     """测试DVC配置"""[m
+[31m-    dvc_config_file = '.dvc/config'[m
+[32m+[m[32m    dvc_config_file = ".dvc/config"[m
+     if os.path.exists(dvc_config_file):[m
+[31m-        with open(dvc_config_file, 'r') as f:[m
+[32m+[m[32m        with open(dvc_config_file, "r") as f:[m
+             content = f.read()[m
+[31m-            assert 'remote' in content, "DVC远程配置不存在"[m
+[32m+[m[32m            assert "remote" in content, "DVC远程配置不存在"[m
+ [m
+ [m
+ if __name__ == "__main__":[m
+     # 运行测试[m
+     pytest_args = [__file__, "-v", "--tb=short"][m
+[31m-    [m
+[32m+[m
+     # 添加覆盖率报告[m
+     pytest_args.extend(["--cov=.", "--cov-report=html"])[m
+[31m-    [m
+[32m+[m
+     pytest.main(pytest_args)[m
